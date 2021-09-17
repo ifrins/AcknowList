@@ -59,7 +59,7 @@ open class AcknowListViewController: UITableViewController {
 
      - returns: The new `AcknowListViewController` instance.
      */
-    public convenience init() {
+    @objc public convenience init() {
         if let path = AcknowListViewController.defaultAcknowledgementsPlistPath() {
             self.init(plistPath: path)
         }
@@ -114,12 +114,29 @@ open class AcknowListViewController: UITableViewController {
 
      - returns: The new `AcknowListViewController` instance.
      */
-    public init(acknowledgements: [Acknow], style: UITableView.Style = .grouped) {
-        self.acknowledgements = acknowledgements
+    @objc public convenience init(acknowledgements: [AcknowClass], style: UITableView.Style = .grouped) {
+        self.init(style: style)
 
-        super.init(style: style)
+        self.acknowledgements = acknowledgements.map { acknow in
+             Acknow(title: acknow.title, text: acknow.text, license: acknow.license)
+         }
 
         self.title = AcknowLocalization.localizedTitle()
+    }
+    
+    
+    /**
+     Bugfix for [Issue #89](https://github.com/vtourraine/AcknowList/issues/89).
+     
+     On iOS 15 using Xcode 13 RC, the initializer will crash unless this one is overridden.
+     
+     Solution taken from [StackOverflow](https://stackoverflow.com/questions/69092599/xcode-13-beta-5-error-uiviewcontroller-is-missing-its-initial-trait-collection)
+     */
+    public override init(style: UITableView.Style) {
+
+        self.acknowledgements = []
+
+        super.init(style: style)
     }
 
     /**
